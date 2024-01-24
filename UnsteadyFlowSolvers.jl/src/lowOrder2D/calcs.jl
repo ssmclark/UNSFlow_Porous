@@ -28,7 +28,7 @@ function update_adot(surf::TwoDSurf,dt)
     for ia = 1:3
         surf.adot[ia] = (surf.aterm[ia]-surf.aprev[ia])/dt
     end
-    return surf
+    return surf+
 end
 
 # Function for updating the induced velocities
