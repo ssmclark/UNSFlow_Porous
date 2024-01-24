@@ -1,4 +1,4 @@
-push!(LOAD_PATH,"ssmclark/UNSFlow_Porous/UnsteadyFlowSolvers.jl")
+push!(LOAD_PATH,"UnsteadyFlowSolvers.jl")
 
 using UnsteadyFlowSolvers
 
@@ -28,3 +28,13 @@ startflag = 0
 writeflag = 1
 
 writeInterval = t_tot/10.
+
+delvort = delnone()
+
+mat, surf, curfield = ldvm2DOFPorous(surf, curfield, nsteps dtstar, startflag, writeflag, writeInterval,delvort, wakerollup=1)
+
+makeForcePlots2D()
+
+makeVortPlots2D()
+
+cleanWrite()
