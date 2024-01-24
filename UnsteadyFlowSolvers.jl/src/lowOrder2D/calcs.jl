@@ -46,6 +46,7 @@ function add_indbound_b(surf::TwoDSurf, surfj::TwoDSurf)
 end
 
 # Function for updating the downwash
+# does this change get saved here?
 function update_downwash(surf::TwoDSurf, vels::Vector{Float64})
     for ib = 1:surf.ndiv
         #each section of boundary condition is (parameter + change) - parameter at previous time step
