@@ -1,5 +1,5 @@
 # Function for estimating a problem's time step
-function update_a2a3adot(surf::TwoDSurf,dt)
+function update_a2a3adot(surf::Union{TwoDSurf,TwoDSurfPorous}, dt)
     for ia = 2:3
         surf.aterm[ia] = simpleTrapz(surf.downwash.*cos.(ia*surf.theta),surf.theta)
         surf.aterm[ia] = 2. *surf.aterm[ia]/(surf.uref*pi)
@@ -11,7 +11,7 @@ function update_a2a3adot(surf::TwoDSurf,dt)
     return surf
 end
 
-function update_atermdot(surf::TwoDSurf,dt)
+function update_atermdot(surf :: Union{TwoDSurf, TwoDSurfPorous},dt)
     for ia = 2:surf.naterm
         surf.aterm[ia] = simpleTrapz(surf.downwash.*cos.(ia*surf.theta),surf.theta)
         surf.aterm[ia] = 2. *surf.aterm[ia]/(surf.uref*pi)
@@ -28,11 +28,11 @@ function update_adot(surf::TwoDSurf,dt)
     for ia = 1:3
         surf.adot[ia] = (surf.aterm[ia]-surf.aprev[ia])/dt
     end
-    return surf+
+    return surf
 end
 
 # Function for updating the induced velocities
-function update_indbound(surf::TwoDSurf, curfield::TwoDFlowField)
+function update_indbound(surf::Union{TwoDSurf, TwoDSurfPorous}, curfield::TwoDFlowField)
     surf.uind[1:surf.ndiv], surf.wind[1:surf.ndiv] = ind_vel([curfield.tev; curfield.lev; curfield.extv], surf.bnd_x, surf.bnd_z)
     return surf
 end
@@ -46,37 +46,35 @@ function add_indbound_b(surf::TwoDSurf, surfj::TwoDSurf)
 end
 
 # Function for updating the downwash
-# does this change get saved here?
 function update_downwash(surf::TwoDSurf, vels::Vector{Float64})
     for ib = 1:surf.ndiv
-        #each section of boundary condition is (parameter + change) - parameter at previous time step
-        #not in all cases though!
         surf.downwash[ib] = -(surf.kinem.u + vels[1])*sin(surf.kinem.alpha) - surf.uind[ib]*sin(surf.kinem.alpha) + (surf.kinem.hdot - vels[2])*cos(surf.kinem.alpha) - surf.wind[ib]*cos(surf.kinem.alpha) - surf.kinem.alphadot*(surf.x[ib] - surf.pvt*surf.c) + surf.cam_slope[ib]*(surf.uind[ib]*cos(surf.kinem.alpha) + (surf.kinem.u + vels[1])*cos(surf.kinem.alpha) + (surf.kinem.hdot - vels[2])*sin(surf.kinem.alpha) - surf.wind[ib]*sin(surf.kinem.alpha))
     end
     return surf
 end
 
- # Function for updating the downwash (porous) What else needs changed here?
- # Definitely boundary cond. Copy equation for boundary condition but be careful about which bits are positive and negative.
- # Loop indexing is also something to be very careful about.
-function update_downwash_porous(surf::TwoDSurfPorous, vels::Vector{Float64})
-    for ib = 1:surf.ndiv
-        surf.downwash[ib] = -(surf.kinem.u + vels[1])*sin(surf.kinem.alpha) - surf.uind[ib]*sin(surf.kinem.alpha) + (surf.kinem.hdot - vels[2])*cos(surf.kinem.alpha) - surf.wind[ib]*cos(surf.kinem.alpha) - surf.kinem.alphadot*(surf.x[ib] - surf.pvt*surf.c) + surf.cam_slope[ib]*(surf.uind[ib]*cos(surf.kinem.alpha) + (surf.kinem.u + vels[1])*cos(surf.kinem.alpha) + (surf.kinem.hdot - vels[2])*sin(surf.kinem.alpha) - surf.wind[ib]*sin(surf.kinem.alpha))
-    end
+# adds the seepage velocity component to total downwash. there isn't currently a downwash component in lautat solver
+function update_downwash(surf::TwoDSurfPorous, vels::Vector{Float64})
+      for ib = 1:surf.ndiv
+       #surf.downwash[ib] = surf.ws - (surf.kinem.u + vels[1])*sin(surf.kinem.alpha) - surf.uind[ib]*sin(surf.kinem.alpha) + (surf.kinem.hdot - vels[2])*cos(surf.kinem.alpha) - surf.wind[ib]*cos(surf.kinem.alpha) - surf.kinem.alphadot*(surf.x[ib] - surf.pvt*surf.c) + surf.cam_slope[ib]*(surf.uind[ib]*cos(surf.kinem.alpha) + (surf.kinem.u + vels[1])*cos(surf.kinem.alpha) + (surf.kinem.hdot - vels[2])*sin(surf.kinem.alpha) - surf.wind[ib]*sin(surf.kinem.alpha))
+       #surf.downwash[ib] = surf.ws .- (surf.kinem.u .+ vels[1]).*sin(surf.kinem.alpha) .- surf.uind[ib].*sin(surf.kinem.alpha) .+ (surf.kinem.hdot .- vels[2]).*cos(surf.kinem.alpha) .- surf.wind[ib].*cos(surf.kinem.alpha) .- surf.kinem.alphadot.*(surf.x[ib] .- surf.pvt.*surf.c) .+ surf.cam_slope[ib].*(surf.uind[ib].*cos(surf.kinem.alpha) .+ (surf.kinem.u .+ vels[1]).*cos(surf.kinem.alpha) .+ (surf.kinem.hdot .- vels[2]).*sin(surf.kinem.alpha) .- surf.wind[ib].*sin(surf.kinem.alpha))
+       surf.downwash[ib] = -(surf.kinem.u + vels[1])*sin(surf.kinem.alpha) - surf.uind[ib]*sin(surf.kinem.alpha) + (surf.kinem.hdot - vels[2])*cos(surf.kinem.alpha) - surf.wind[ib]*cos(surf.kinem.alpha) - surf.kinem.alphadot*(surf.x[ib] - surf.pvt*surf.c) + surf.cam_slope[ib]*(surf.uind[ib]*cos(surf.kinem.alpha) + (surf.kinem.u + vels[1])*cos(surf.kinem.alpha) + (surf.kinem.hdot - vels[2])*sin(surf.kinem.alpha) - surf.wind[ib]*sin(surf.kinem.alpha)) - surf.ws[ib]
+     end
     return surf
 end
 
-# does it go here? why is vels not being used?
-# remember to non-dimensionalise!!!!!! pressure coefficient won't work otherwise
-function porous_boundary_condition(surf :: TwoDSurfPorous, vels::Vector{Float64})
+# cl and cm here instead?
+# p_com has not been defined correctly for solver
+# needs to be solved as an ODE, this method below only copies eqn from Baddoo et al.
+function calc_porous_param(surf :: TwoDSurfPorous, p_com, ws_prev, dt)
     for ib = 1:surf.ndiv
-        surf.seepage[ib] = 2*rho_e[ib]
-    end 
+        surf.ws[ib] = (2*surf.rho_e*ws_prev[ib]/dt - p_com[ib])/(2*surf.rho_e/dt + surf.phi) 
+    end
     return surf
 end
 
 # Function for a_0 and a_1 fourier coefficients
-function update_a0anda1(surf::TwoDSurf)
+function update_a0anda1(surf::Union{TwoDSurf,TwoDSurfPorous})
     surf.a0[1] = simpleTrapz(surf.downwash,surf.theta)
     surf.aterm[1] = simpleTrapz(surf.downwash.*cos.(surf.theta),surf.theta)
     surf.a0[1] = -surf.a0[1]/(surf.uref*pi)
@@ -85,7 +83,7 @@ function update_a0anda1(surf::TwoDSurf)
 end
 
 # Function for calculating the fourier coefficients a_2 upwards to a_n
-function update_a2toan(surf::TwoDSurf)
+function update_a2toan(surf::Union{TwoDSurf,TwoDSurfPorous})
     for ia = 2:surf.naterm
         surf.aterm[ia] = simpleTrapz(surf.downwash.*cos.(ia*surf.theta),surf.theta)
         surf.aterm[ia] = 2. *surf.aterm[ia]/(surf.uref*pi)
@@ -116,7 +114,7 @@ end
 
 
 # Function updating the dimensional kinematic parameters
-function update_kinem(surf::TwoDSurf, t)
+function update_kinem(surf::Union{TwoDSurf,TwoDSurfPorous}, t)
 
     # Pitch kinematics
     if (typeof(surf.kindef.alpha) == EldUpDef)
@@ -239,7 +237,7 @@ end
 # Updates the bound vorticity distribution: eqn (2.1) in Ramesh et al. (2013)
 # determines the strength of bound vortices
 # determines the x, z components of the bound vortices
-function update_bv(surf::TwoDSurf)
+function update_bv(surf::Union{TwoDSurf,TwoDSurfPorous})
     gamma = zeros(surf.ndiv)
     for ib = 1:surf.ndiv
         gamma[ib] = (surf.a0[1]*(1 + cos(surf.theta[ib])))
@@ -257,7 +255,7 @@ function update_bv(surf::TwoDSurf)
 end
 
 # Function for calculating the wake rollup
-function wakeroll(surf::TwoDSurf, curfield::TwoDFlowField, dt)
+function wakeroll(surf::Union{TwoDSurf,TwoDSurfPorous}, curfield::TwoDFlowField, dt)
 
     nlev = length(curfield.lev)
     ntev = length(curfield.tev)
@@ -410,7 +408,7 @@ function wakeroll(surf::Vector{TwoDSurf}, curfield::TwoDFlowField, dt)
 end
 
 # Places a trailing edge vortex
-function place_tev(surf::TwoDSurf,field::TwoDFlowField,dt)
+function place_tev(surf::Union{TwoDSurf, TwoDSurfPorous},field::TwoDFlowField,dt)
     ntev = length(field.tev)
     if ntev == 0
         xloc = surf.bnd_x[surf.ndiv] + 0.5*surf.kinem.u*dt
@@ -443,8 +441,23 @@ function place_tev(surf::Vector{TwoDSurf},field::TwoDFlowField,dt)
     return field
 end
 
+function place_tev_porous(surf::TwoDSurfPorous,field::TwoDFlowField,dt)
+    ntev = length(field.tev)
+    if ntev == 0
+        xloc = surf.bnd_x[surf.ndiv] + 0.5*surf.kinem.u*dt
+        zloc = surf.bnd_z[surf.ndiv]
+    else
+        xloc = surf.bnd_x[surf.ndiv]+(1. /3.)*(field.tev[ntev].x - surf.bnd_x[surf.ndiv])
+
+        zloc = surf.bnd_z[surf.ndiv]+(1. /3.)*(field.tev[ntev].z - surf.bnd_z[surf.ndiv])
+    end
+    push!(field.tev,TwoDVort(xloc,zloc,0.,0.02*surf.c,0.,0.))
+    return field
+end
+
+
 # Places a leading edge vortex
-function place_lev(surf::TwoDSurf,field::TwoDFlowField,dt)
+function place_lev(surf::Union{TwoDSurf, TwoDSurfPorous},field::TwoDFlowField,dt)
     nlev = length(field.lev)
 
     le_vel_x = surf.kinem.u - surf.kinem.alphadot*sin(surf.kinem.alpha)*surf.pvt*surf.c + surf.uind[1]
@@ -488,7 +501,7 @@ function place_lev(surf::Vector{TwoDSurf},field::TwoDFlowField,dt,shed_ind::Vect
 end
 
 # Function for updating the positions of the bound vortices
-function update_boundpos(surf::TwoDSurf, dt::Float64)
+function update_boundpos(surf::Union{TwoDSurf,TwoDSurfPorous}, dt::Float64)
     for i = 1:surf.ndiv
         surf.bnd_x[i] = surf.bnd_x[i] + dt*((surf.pvt*surf.c - surf.x[i])*sin(surf.kinem.alpha)*surf.kinem.alphadot - surf.kinem.u + surf.cam[i]*cos(surf.kinem.alpha)*surf.kinem.alphadot)
         surf.bnd_z[i] = surf.bnd_z[i] + dt*(surf.kinem.hdot + (surf.pvt*surf.c - surf.x[i])*cos(surf.kinem.alpha)*surf.kinem.alphadot - surf.cam[i]*sin(surf.kinem.alpha)*surf.kinem.alphadot)
@@ -639,7 +652,7 @@ function controlVortCount(delvort :: delVortDef, surf_locx :: Float64, surf_locz
     end
 end
 
-function update_kinem2DOF(surf::TwoDSurf, strpar :: TwoDOFPar, kinem :: KinemPar2DOF, dt, cl, cm)
+function update_kinem2DOF(surf::Union{TwoDSurf,TwoDSurfPorous}, strpar :: TwoDOFPar, kinem :: KinemPar2DOF, dt, cl, cm)
     #Update previous terms
     kinem.alpha_pr = kinem.alpha
     kinem.h_pr = kinem.h
