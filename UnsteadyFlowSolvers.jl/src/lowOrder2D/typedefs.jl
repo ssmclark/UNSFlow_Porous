@@ -193,7 +193,7 @@ struct TwoDSurfPorous
     uind :: Vector{Float64}
     wind :: Vector{Float64}
     downwash :: Vector{Float64}
-    seepage :: Vector{Float64}  #w_s, seepage flow rate normal to aerofoil surface
+    ws :: Vector{Float64}  #w_s, seepage flow rate normal to aerofoil surface
     a0 :: Vector{Float64}
     aterm :: Vector{Float64}
     a0dot :: Vector{Float64}
@@ -303,7 +303,7 @@ struct TwoDSurfPorous
     uind = zeros(ndiv)
     wind = zeros(ndiv)
     downwash = zeros(ndiv)
-    seepage = zeros(ndiv)
+    ws = zeros(ndiv)
     a0 = zeros(1)
     a0dot = zeros(1)
     aterm = zeros(naterm)
@@ -315,7 +315,8 @@ struct TwoDSurfPorous
         push!(bv,TwoDVort(0,0,0,0.02*c,0,0))
     end
     levflag = [0]
-    new(c, uref, coord_file, pvt, ndiv, naterm, kindef, cam, cam_slope, theta, x, kinem, bnd_x, bnd_z, uind, wind, downwash, seepage, a0, aterm, a0dot, adot, a0prev, aprev, bv, lespcrit, levflag, initpos, rho, rho_e, phi)
+
+    new(c, uref, coord_file, pvt, ndiv, naterm, kindef, cam, cam_slope, theta, x, kinem, bnd_x, bnd_z, uind, wind, downwash, ws, a0, aterm, a0dot, adot, a0prev, aprev, bv, lespcrit, levflag, initpos, rho, rho_e, phi)
     end
 end
 
@@ -365,7 +366,7 @@ end
 
 
 struct KelvinCondition
-    surf :: TwoDSurf
+    surf :: Union{TwoDSurf, TwoDSurfPorous}
     field :: TwoDFlowField
 end
 
@@ -391,10 +392,6 @@ function (kelv::KelvinCondition)(tev_iter::Array{Float64})
 
     #Calculate downwash [this needs to be removed when porous downwash is created]
     update_downwash(kelv.surf, [kelv.field.u[1],kelv.field.w[1]])
-
-    #Calculate porous downwash [kelv.surf needs to be changed? kelv.field is fine]
-    #update_downwash_porous(kelv.surf), [kelv.field.u[1],kelv.field.[w]])
-
 
     #Calculate first two fourier coefficients
     update_a0anda1(kelv.surf)
@@ -459,7 +456,7 @@ end
 
 
 struct KelvinKutta
-    surf :: TwoDSurf
+    surf :: Union{TwoDSurf, TwoDSurfPorous}
     field :: TwoDFlowField
 end
 
