@@ -1,4 +1,4 @@
-function calc_forces(surf::TwoDSurf, vels::Vector{Float64})
+function calc_forces(surf::Union{TwoDSurf,TwoDSurfPorous}, vels::Vector{Float64})
 
     # First term in eqn (2.30) Ramesh et al. in coefficient form
     cnc = 2*pi*((surf.kinem.u + vels[1])*cos(surf.kinem.alpha)/surf.uref + (surf.kinem.hdot - vels[2])*sin(surf.kinem.alpha)/surf.uref)*(surf.a0[1] + surf.aterm[1]/2.)
@@ -31,7 +31,7 @@ function calc_forces(surf::TwoDSurf, vels::Vector{Float64})
     return cl, cd, cm, cn
 end
 
-function writeStamp(dirname::String, t::Float64, surf::TwoDSurf, curfield::TwoDFlowField)
+function writeStamp(dirname::String, t::Float64, surf::Union{TwoDSurf,TwoDSurfPorous}, curfield::TwoDFlowField)
 
     try
         cd("Step Files")
@@ -191,9 +191,8 @@ function writeStamp(dirname::String, t::Float64, surf::Vector{TwoDSurf}, curfiel
     cd("..")
 end
 
-#NO DENSITY IN THIS EQN. DelP has been non-dimensionalised by dynamic pressure.
-#Where does this pressure go? Why is the velocity not being read in?
-function calc_delcp(surf::TwoDSurf, vels::Vector{Float64})
+
+function calc_delcp(surf::Union{TwoDSurf,TwoDSurfPorous}, vels::Vector{Float64})
 
     p_in = zeros(surf.ndiv)
     p_out = zeros(surf.ndiv)
@@ -232,7 +231,7 @@ function calc_delcp(surf::TwoDSurf, vels::Vector{Float64})
     return p_com, p_in, p_out
 end
 
-function calc_edgeVel(surf::TwoDSurf, vels::Vector{Float64})
+function calc_edgeVel(surf::Union{TwoDSurf, TwoDSurfPorous}, vels::Vector{Float64})
 
     gammod = zeros(surf.ndiv)
     q_com_u = zeros(surf.ndiv)
