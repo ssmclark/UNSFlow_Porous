@@ -18,7 +18,7 @@ import LinearAlgebra
 
 import Dates
 
-import Plots: @layout
+# import Plots: @layout
 
 import PyPlot: plot, scatter, figure, xlabel, ylabel, xlim, ylim,
     xticks, yticks, subplot, subplot2grid, legend, axis, savefig,

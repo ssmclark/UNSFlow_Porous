@@ -1,7 +1,6 @@
-push!(LOAD_PATH,"C:\Users\user\ENG_Project_4\UNSFlow_Porous\UnsteadyFlowSolvers.jl\src\UnsteadyFlowSolvers.jl")
+push!(LOAD_PATH,"C:\\Users\\user\\ENG_Project_4\\UNSFlow_Porous\\UnsteadyFlowSolvers.jl\\src\\UnsteadyFlowSolvers.jl")
 
 using UnsteadyFlowSolvers
-using Plots
 
 alphadef = ConstDef(0. *pi/180)
 
@@ -14,7 +13,7 @@ full_kinem = KinemDef(alphadef, hdef, udef)
 pvt = 0.25
 
 geometry = "FlatPlate"
-
+#testgit
 surf = TwoDSurfPorous(geometry, pvt, full_kinem, [100.0], rho = 0.02, rho_e = 1.2, phi = 5.1)
 surf2 = TwoDSurf(geometry, pvt, full_kinem, [100.0], rho = 0.02)
 
@@ -37,7 +36,7 @@ delvort = delNone()
 
 mat, surf, curfield, p_com = ldvmLin(surf, curfield, nsteps, dtstar,startflag, writeflag, writeInterval, delvort)
 
-#plot(surf_p.x, surf_p.ws)
+#plot(surf.x, p_com)
 
 
 cleanWrite()
