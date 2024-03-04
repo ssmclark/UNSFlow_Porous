@@ -20,9 +20,9 @@ import Dates
 
 # import Plots: @layout
 
-import PyPlot: plot, scatter, figure, xlabel, ylabel, xlim, ylim,
-    xticks, yticks, subplot, subplot2grid, legend, axis, savefig,
-    close, tight_layout, clf, title, show, pause
+# import PyPlot: plot, scatter, figure, xlabel, ylabel, xlim, ylim,
+#    xticks, yticks, subplot, subplot2grid, legend, axis, savefig,
+#    close, tight_layout, clf, title, show, pause
 
 import LaTeXStrings: @L_str
 
