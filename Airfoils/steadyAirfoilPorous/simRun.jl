@@ -15,8 +15,10 @@ full_kinem = KinemDef(alphadef, hdef, udef)
 pvt = 0.2
 
 geometry = "FlatPlate"
-
-surf = TwoDSurfPorous(geometry, pvt, full_kinem, [100.0], rho = 0.02, rho_e = 1.2, phi = 5.1)
+# value for rho_e needs to be changed here. might require another function somewhere
+# high values of flow resistance gives impermeable aerofoil
+# value for reduced frequency?
+surf = TwoDSurfPorous(geometry, pvt, full_kinem, [100.0], rho = 0.02, rho_e = 1.2, phi = 10000000)
 surf2 = TwoDSurf(geometry, pvt, full_kinem, [100.0], rho = 0.02)
 
 curfield = TwoDFlowField()

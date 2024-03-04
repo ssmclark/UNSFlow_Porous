@@ -193,7 +193,7 @@ struct TwoDSurfPorous
     uind :: Vector{Float64}
     wind :: Vector{Float64}
     downwash :: Vector{Float64}
-    ws :: Vector{Float64}  #w_s, seepage flow rate normal to aerofoil surface
+    ws :: Vector{Float64}  # seepage flow rate normal to aerofoil surface
     a0 :: Vector{Float64}
     aterm :: Vector{Float64}
     a0dot :: Vector{Float64}

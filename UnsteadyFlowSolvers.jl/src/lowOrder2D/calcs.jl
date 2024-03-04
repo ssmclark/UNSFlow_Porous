@@ -53,7 +53,8 @@ function update_downwash(surf::TwoDSurf, vels::Vector{Float64})
     return surf
 end
 
-# adds the seepage velocity component to total downwash. there isn't currently a downwash component in lautat solver
+# adds the seepage velocity component to total downwash (Baddoo et al. eq (2.1))
+# be careful with negative sign. Currently (04/03/24), both ws and downwash are negative
 function update_downwash(surf::TwoDSurfPorous, vels::Vector{Float64})
       for ib = 1:surf.ndiv
        #surf.downwash[ib] = surf.ws - (surf.kinem.u + vels[1])*sin(surf.kinem.alpha) - surf.uind[ib]*sin(surf.kinem.alpha) + (surf.kinem.hdot - vels[2])*cos(surf.kinem.alpha) - surf.wind[ib]*cos(surf.kinem.alpha) - surf.kinem.alphadot*(surf.x[ib] - surf.pvt*surf.c) + surf.cam_slope[ib]*(surf.uind[ib]*cos(surf.kinem.alpha) + (surf.kinem.u + vels[1])*cos(surf.kinem.alpha) + (surf.kinem.hdot - vels[2])*sin(surf.kinem.alpha) - surf.wind[ib]*sin(surf.kinem.alpha))
@@ -63,12 +64,11 @@ function update_downwash(surf::TwoDSurfPorous, vels::Vector{Float64})
     return surf
 end
 
-# cl and cm here instead?
-# p_com has not been defined correctly for solver
-# needs to be solved as an ODE, this method below only copies eqn from Baddoo et al.
+# unsteady porous boundary condition (Baddoo et al. eq (2.2))
+# changes to p_com for normalising or non-dimensionalising will go in here
 function calc_porous_param(surf :: TwoDSurfPorous, p_com, ws_prev, dt)
     for ib = 1:surf.ndiv
-        surf.ws[ib] = (2*surf.rho_e*ws_prev[ib]/dt - p_com[ib])/(2*surf.rho_e/dt + surf.phi) 
+        surf.ws[ib] = (2*surf.rho_e*ws_prev[ib]/dt - (p_com[ib]*1))/(2*surf.rho_e/dt + surf.phi) 
     end
     return surf
 end
