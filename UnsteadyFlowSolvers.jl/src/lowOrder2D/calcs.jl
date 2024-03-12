@@ -65,10 +65,14 @@ function update_downwash(surf::TwoDSurfPorous, vels::Vector{Float64})
 end
 
 # unsteady porous boundary condition (Baddoo et al. eq (2.2))
-# changes to p_com for normalising or non-dimensionalising will go in here
-function calc_porous_param(surf :: TwoDSurfPorous, p_com, ws_prev, dt)
+# changes to pressure for normalising or non-dimensionalising will go in here
+function calc_porous_param(surf :: TwoDSurfPorous, vels :: Vector{Float64}, p_out, ws_prev, dt)
     for ib = 1:surf.ndiv
-        surf.ws[ib] = (2*surf.rho_e*ws_prev[ib]/dt - (p_com[ib]*1))/(2*surf.rho_e/dt + surf.phi) 
+        #surf.ws[ib] = (2*surf.rho_e*ws_prev[ib]/dt - p_com[ib])/(2*surf.rho_e/dt + surf.phi)
+        # below line is p_com normalised by 1/2*rho*v^2
+        # currently, multiplying this value has no effect on overall pressure on graph. Either its the wrong velocity or the scaling is in the wrong place
+        # last term replaces Phi. Need to change for other kinematics
+        surf.ws[ib] = (2*surf.rho_e*ws_prev[ib]/dt - (p_out[ib]/(0.5)))/(2*surf.rho_e/dt + 1/(0.05*(surf.x[ib]+1))) 
     end
     return surf
 end

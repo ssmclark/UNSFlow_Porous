@@ -15,10 +15,11 @@ full_kinem = KinemDef(alphadef, hdef, udef)
 pvt = 0.2
 
 geometry = "FlatPlate"
-# value for rho_e needs to be changed here. might require another function somewhere
-# high values of flow resistance gives impermeable aerofoil
-# value for reduced frequency?
-surf = TwoDSurfPorous(geometry, pvt, full_kinem, [100.0], rho = 0.02, rho_e = 1.2, phi = 10000000)
+
+#stick function for flow resistance here
+# phi = 1/(0.05*(surf.x+1))
+
+surf = TwoDSurfPorous(geometry, pvt, full_kinem, [100.0], rho = 0.02, rho_e = 1.2, phi = 10)
 surf2 = TwoDSurf(geometry, pvt, full_kinem, [100.0], rho = 0.02)
 
 curfield = TwoDFlowField()
@@ -38,8 +39,16 @@ writeInterval = t_tot/5.
 #delvort = delSpalart(500, 12, 1e-5)
 delvort = delNone()
 
-mat, surf, curfield, p_com = ldvmLin(surf, curfield, nsteps, dtstar,startflag, writeflag, writeInterval, delvort)
+mat, surf, curfield, p_out = ldvmLin(surf, curfield, nsteps, dtstar,startflag, writeflag, writeInterval, delvort)
 
 cleanWrite()
 
-plot(surf.x, p_com)
+layout = Layout(
+    title ="Magnitude of unsteady pressure distribution on a steady<br>partially porous aerofoil. Flow resistance is $(surf.phi)",
+    titlefont_width = 450,
+    width = 600, height = 400,
+    xaxis_title = "x",
+    yaxis_title = "Pressure jump"
+)
+
+plot(surf.x, p_out, layout)

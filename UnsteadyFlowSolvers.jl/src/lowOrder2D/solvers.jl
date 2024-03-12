@@ -805,7 +805,7 @@ function ldvmLin(surf::TwoDSurfPorous, curfield::TwoDFlowField, nsteps::Int64 = 
     T2 = zeros(surf.ndiv)
     T3 = zeros(surf.ndiv)
 
-    p_com = zeros(surf.ndiv)
+    p_out = zeros(surf.ndiv)
     ws_prev = zeros(surf.ndiv)
     # time stepping
     for istep = 1:nsteps
@@ -822,7 +822,7 @@ function ldvmLin(surf::TwoDSurfPorous, curfield::TwoDFlowField, nsteps::Int64 = 
         update_boundpos(surf, dt)
 
         # update the porosity parameters
-        calc_porous_param(surf, p_com, ws_prev, dt) 
+        calc_porous_param(surf, [curfield.u[1],curfield.w[1]], p_out, ws_prev, dt) 
         ws_prev[:] .= surf.ws[:]
 
         #Update induced velocities on airfoil
@@ -956,7 +956,7 @@ wakeroll(surf, curfield, dt)
 
 # Calculate force and moment coefficients
 cl, cd, cm = calc_forces(surf, [curfield.u[1], curfield.w[1]])
-p_com,_,_ = calc_delcp(surf, [curfield.u[1], curfield.w[1]])
+_,_,p_out = calc_delcp(surf, [curfield.u[1], curfield.w[1]])
 
 # write flow details if required
 if writeflag == 1
@@ -978,7 +978,7 @@ println(f,"#time \t","alpha(deg) \t","h/c \t", "u/uref \t", "A0 \t", "Cl \t", "C
 DelimitedFiles.writedlm(f, mat)
 close(f)
 
-mat, surf, curfield, p_com
+mat, surf, curfield, p_out
 
 end
 
