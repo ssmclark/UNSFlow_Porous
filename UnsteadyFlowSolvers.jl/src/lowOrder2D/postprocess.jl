@@ -191,7 +191,6 @@ function writeStamp(dirname::String, t::Float64, surf::Vector{TwoDSurf}, curfiel
     cd("..")
 end
 
-
 function calc_delcp(surf::Union{TwoDSurf,TwoDSurfPorous}, vels::Vector{Float64})
 
     p_in = zeros(surf.ndiv)

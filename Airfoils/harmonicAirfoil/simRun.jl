@@ -11,7 +11,7 @@ full_kinem = KinemDef(alphadef, hdef, udef)
 pvt = 0.
 geometry = "FlatPlate"
 # currently in impermeable limit for flow resistance
-surf = TwoDSurfPorous(geometry, pvt, full_kinem, [100.0], rho = 0.02, rho_e = 1.2, phi = 100000)
+surf = TwoDSurfPorous(geometry, pvt, full_kinem, [100.0], rho = 0.02, rho_e = 1.2, phi = 10000)
 
 curfield = TwoDFlowField()
 
@@ -35,9 +35,12 @@ mat, surf, curfield, p_com = ldvmLin(surf, curfield, nsteps, dtstar,startflag, w
 cleanWrite()
 
 layout = Layout(
-    title ="Magnitude of unsteady pressure distribution on a partially porous aerofoil undergoing pitching motion. Flow resistance is $(surf.phi)",
-    xaxis_title = "x",
-    yaxis_title = "Pressure jump"
+    title ="Flow Resistance (Phi) for unsteady aerofoil @ $(surf.phi)",
+    titlefont_width = 450,
+    width = 600, height = 400,
+    xaxis_title = "Ordinate (x)",
+    yaxis_title = "Pressure Jump (Delta P)",
+    yaxis_range=[0,0.45]
 )
 
 plot(surf.x, p_com, layout)

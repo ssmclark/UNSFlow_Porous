@@ -54,11 +54,8 @@ function update_downwash(surf::TwoDSurf, vels::Vector{Float64})
 end
 
 # adds the seepage velocity component to total downwash (Baddoo et al. eq (2.1))
-# be careful with negative sign. Currently (04/03/24), both ws and downwash are negative
 function update_downwash(surf::TwoDSurfPorous, vels::Vector{Float64})
       for ib = 1:surf.ndiv
-       #surf.downwash[ib] = surf.ws - (surf.kinem.u + vels[1])*sin(surf.kinem.alpha) - surf.uind[ib]*sin(surf.kinem.alpha) + (surf.kinem.hdot - vels[2])*cos(surf.kinem.alpha) - surf.wind[ib]*cos(surf.kinem.alpha) - surf.kinem.alphadot*(surf.x[ib] - surf.pvt*surf.c) + surf.cam_slope[ib]*(surf.uind[ib]*cos(surf.kinem.alpha) + (surf.kinem.u + vels[1])*cos(surf.kinem.alpha) + (surf.kinem.hdot - vels[2])*sin(surf.kinem.alpha) - surf.wind[ib]*sin(surf.kinem.alpha))
-       #surf.downwash[ib] = surf.ws .- (surf.kinem.u .+ vels[1]).*sin(surf.kinem.alpha) .- surf.uind[ib].*sin(surf.kinem.alpha) .+ (surf.kinem.hdot .- vels[2]).*cos(surf.kinem.alpha) .- surf.wind[ib].*cos(surf.kinem.alpha) .- surf.kinem.alphadot.*(surf.x[ib] .- surf.pvt.*surf.c) .+ surf.cam_slope[ib].*(surf.uind[ib].*cos(surf.kinem.alpha) .+ (surf.kinem.u .+ vels[1]).*cos(surf.kinem.alpha) .+ (surf.kinem.hdot .- vels[2]).*sin(surf.kinem.alpha) .- surf.wind[ib].*sin(surf.kinem.alpha))
        surf.downwash[ib] = -(surf.kinem.u + vels[1])*sin(surf.kinem.alpha) - surf.uind[ib]*sin(surf.kinem.alpha) + (surf.kinem.hdot - vels[2])*cos(surf.kinem.alpha) - surf.wind[ib]*cos(surf.kinem.alpha) - surf.kinem.alphadot*(surf.x[ib] - surf.pvt*surf.c) + surf.cam_slope[ib]*(surf.uind[ib]*cos(surf.kinem.alpha) + (surf.kinem.u + vels[1])*cos(surf.kinem.alpha) + (surf.kinem.hdot - vels[2])*sin(surf.kinem.alpha) - surf.wind[ib]*sin(surf.kinem.alpha)) - surf.ws[ib]
      end
     return surf
@@ -66,13 +63,10 @@ end
 
 # unsteady porous boundary condition (Baddoo et al. eq (2.2))
 # changes to pressure for normalising or non-dimensionalising will go in here
+# 1/(0.05*(surf.x[ib]+1)) for flow resistance distribution. change to surf.phi for constant value
 function calc_porous_param(surf :: TwoDSurfPorous, vels :: Vector{Float64}, p_out, ws_prev, dt)
     for ib = 1:surf.ndiv
-        #surf.ws[ib] = (2*surf.rho_e*ws_prev[ib]/dt - p_com[ib])/(2*surf.rho_e/dt + surf.phi)
-        # below line is p_com normalised by 1/2*rho*v^2
-        # currently, multiplying this value has no effect on overall pressure on graph. Either its the wrong velocity or the scaling is in the wrong place
-        # last term replaces Phi. Need to change for other kinematics
-        surf.ws[ib] = (2*surf.rho_e*ws_prev[ib]/dt - (p_out[ib]/(0.5)))/(2*surf.rho_e/dt + 1/(0.05*(surf.x[ib]+1))) 
+        surf.ws[ib] = ((2*surf.rho_e*ws_prev[ib])/dt - p_out[ib])/(2*surf.rho_e/dt + 1/(0.2*surf.x[ib]))
     end
     return surf
 end

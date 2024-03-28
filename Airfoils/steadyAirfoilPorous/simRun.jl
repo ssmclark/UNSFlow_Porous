@@ -1,8 +1,8 @@
 #push!(LOAD_PATH,"path\\to\\UnsteadyFlowSolvers.jl\\src")
 push!(LOAD_PATH,"C:\\Users\\user\\ENG_Project_4\\UNSFlow_Porous\\UnsteadyFlowSolvers.jl\\src\\")
 
-using UnsteadyFlowSolvers
-using PlotlyJS
+
+using UnsteadyFlowSolvers, PlotlyJS, LaTeXStrings
 
 alphadef = ConstDef(1. *pi/180)
 
@@ -18,11 +18,11 @@ geometry = "FlatPlate"
 
 #stick function for flow resistance here
 # phi = 1/(0.05*(surf.x+1))
+# for now use 10000 for impermeable, then 1000, 100, 10, 5, 2, 1, 0.1
 
-surf = TwoDSurfPorous(geometry, pvt, full_kinem, [100.0], rho = 0.02, rho_e = 1.2, phi = 10)
-surf2 = TwoDSurf(geometry, pvt, full_kinem, [100.0], rho = 0.02)
+surf = TwoDSurfPorous(geometry, pvt, full_kinem, [100.0], rho = 0.02, rho_e = 1.2, phi=1)
 
-curfield = TwoDFlowField()
+curfield= TwoDFlowField()
 
 dtstar = 0.015
 
@@ -43,12 +43,16 @@ mat, surf, curfield, p_out = ldvmLin(surf, curfield, nsteps, dtstar,startflag, w
 
 cleanWrite()
 
+# format this to try to mirror matlab script
 layout = Layout(
-    title ="Magnitude of unsteady pressure distribution on a steady<br>partially porous aerofoil. Flow resistance is $(surf.phi)",
+    title ="Flow Resistance = $(surf.phi) for steady aerofoil",
     titlefont_width = 450,
     width = 600, height = 400,
-    xaxis_title = "x",
-    yaxis_title = "Pressure jump"
+    xaxis_title = L"x",
+    yaxis_title = L"|\Delta P|",
+    yaxis_range=[0,0.35]
 )
 
-plot(surf.x, p_out, layout)
+# possible to add scaling here?
+plot(surf.x,p_out, layout)
+#savefig("text.html")
