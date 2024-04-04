@@ -1,10 +1,17 @@
 push!(LOAD_PATH,"C:/Users/user/ENG_Project_4/UNSFlow_Porous/UnsteadyFlowSolvers.jl/src")
 
 using UnsteadyFlowSolvers, PlotlyJS, LaTeXStrings
-
+cd("C:/Users/user/ENG_Project_4/UNSFlow_Porous/Airfoils/harmonicAirfoilMult/")
 m = 0:0.25:1
+folderCheck=isdir("FlowResist_0.0/")
+if folderCheck == true
+    rm("FlowResist_0.0/", force = true, recursive = true)
+    rm("FlowResist_0.5/", force = true, recursive = true)
+    rm("FlowResist_0.25/", force = true, recursive = true)
+    rm("FlowResist_0.75/", force = true, recursive = true)
+    rm("FlowResist_1.0/", force = true, recursive = true)
+end
 
-cd("C:/Users/user/ENG_Project_4/UNSFlow_Porous/Airfoils/examplePHG")
 x = []
 p_arr= []
 for j in m 
@@ -13,7 +20,7 @@ for j in m
 
     cd("FlowResist_"*string(j))
 
-    alphadef = SinDef(0., 0.05, 0.5, 0.)
+    alphadef = SinDef(0., 0.5, 0.5, 0.)
     
     hdef = ConstDef(0.)
     udef = ConstDef(1.)
@@ -56,21 +63,22 @@ end
 #trace_arr = Vector{GenericTrace}(undef, nr_of_traces)
 
 trace_arr = GenericTrace{Dict{Symbol, Any}}[]
+
 for i in p_arr
-    trace = scatter(x=x, y=i)
-       #mode="lines",
-       #name="m=$m"
+    trace = scatter(x=x, y=i,
+        mode="lines")
     push!(trace_arr,trace)
 end
 
 layout = Layout(
-        title ="Unsteady (harmonic) aerofoil",
-        titlefont_width = 450,
-        width = 500, height = 250,
-        xaxis_title = L"x",
-        yaxis_title = L"|\Delta P|",
-       # yaxis_range=[0,0.45]
-    )
+            title=attr(text= "Pitching aerofoil at amplitude = 0.5 ", y=0.9, x=0.5, xanchor= "center", yanchor= "top"),
+            width = 500, height = 250,
+            paper_bgcolor="white",
+            xaxis_title = L"x",
+            yaxis_title = L"|\Delta P|",
+            yaxis_range=[0,0.5]
+                )
 
-PlotlyJS.plot(trace_arr, layout)
-#cleanWrite()
+savePlot = PlotlyJS.plot(trace_arr, layout)
+savefig(savePlot,"testPlot_amp_0.5_downwash.html")
+cleanWrite()
