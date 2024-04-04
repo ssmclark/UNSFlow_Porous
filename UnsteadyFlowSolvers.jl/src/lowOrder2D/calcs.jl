@@ -63,10 +63,11 @@ end
 
 # unsteady porous boundary condition (Baddoo et al. eq (2.2))
 # changes to pressure for normalising or non-dimensionalising will go in here
-# 1/(0.05*(surf.x[ib]+1)) for flow resistance distribution. change to surf.phi for constant value
-function calc_porous_param(surf :: TwoDSurfPorous, vels :: Vector{Float64}, p_out, ws_prev, dt)
+# 1/(0.75*(surf.x[ib])) for flow resistance distribution. change to surf.phi for constant value throughout aerofoil
+function calc_porous_param(surf :: TwoDSurfPorous, vels :: Vector{Float64}, p_out, ws_prev, dt, m)
     for ib = 1:surf.ndiv
-        surf.ws[ib] = ((2*surf.rho_e*ws_prev[ib])/dt - p_out[ib])/(2*surf.rho_e/dt + 1/(0.2*surf.x[ib]))
+        surf.ws[ib] = ((2*surf.rho_e*ws_prev[ib])/dt - p_out[ib])/(2*surf.rho_e/dt + 1/((m*surf.x[ib])))
+        #1/(10000*surf.x[ib])
     end
     return surf
 end

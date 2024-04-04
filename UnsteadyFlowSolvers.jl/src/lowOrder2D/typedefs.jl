@@ -207,8 +207,9 @@ struct TwoDSurfPorous
     rho :: Float64
     rho_e :: Float64    #effective density
     phi :: Float64  #dimensionless flow resistance
+    m :: Float64 # scalar for changing porosity gradient
 
-    function TwoDSurfPorous(coord_file, pvt, kindef,lespcrit=zeros(1); c=1., uref=1., ndiv=70, naterm=35, initpos = [0.; 0.], rho = 0.04, rho_e = 0, phi = 0, camberType = "radial")
+    function TwoDSurfPorous(coord_file, pvt, kindef,lespcrit=zeros(1); c=1., uref=1., ndiv=70, naterm=35, initpos = [0.; 0.], rho = 0.04, rho_e = 0, phi = 0, camberType = "radial", m=1)
     theta = zeros(ndiv)
     x = zeros(ndiv)
     cam = zeros(ndiv)
@@ -316,7 +317,7 @@ struct TwoDSurfPorous
     end
     levflag = [0]
 
-    new(c, uref, coord_file, pvt, ndiv, naterm, kindef, cam, cam_slope, theta, x, kinem, bnd_x, bnd_z, uind, wind, downwash, ws, a0, aterm, a0dot, adot, a0prev, aprev, bv, lespcrit, levflag, initpos, rho, rho_e, phi)
+    new(c, uref, coord_file, pvt, ndiv, naterm, kindef, cam, cam_slope, theta, x, kinem, bnd_x, bnd_z, uind, wind, downwash, ws, a0, aterm, a0dot, adot, a0prev, aprev, bv, lespcrit, levflag, initpos, rho, rho_e, phi, m)
     end
 end
 

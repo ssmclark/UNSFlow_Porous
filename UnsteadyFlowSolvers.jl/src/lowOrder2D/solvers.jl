@@ -766,7 +766,7 @@ mat, surf, curfield
 
 end
 
-function ldvmLin(surf::TwoDSurfPorous, curfield::TwoDFlowField, nsteps::Int64 = 500, dtstar::Float64 = 0.015, startflag = 0, writeflag = 0, writeInterval = 1000., delvort = delNone(); maxwrite = 50, nround=6)
+function ldvmLin(surf::TwoDSurfPorous, curfield::TwoDFlowField, nsteps::Int64 = 500, dtstar::Float64 = 0.015, startflag = 0, writeflag = 0, writeInterval = 1000., delvort = delNone(); maxwrite = 50, nround=6, m=1)
 
     # If a restart directory is provided, read in the simulation data
     if startflag == 0
@@ -822,7 +822,8 @@ function ldvmLin(surf::TwoDSurfPorous, curfield::TwoDFlowField, nsteps::Int64 = 
         update_boundpos(surf, dt)
 
         # update the porosity parameters
-        calc_porous_param(surf, [curfield.u[1],curfield.w[1]], p_out, ws_prev, dt) 
+        calc_porous_param(surf, [curfield.u[1],curfield.w[1]], p_out, ws_prev, dt, m) 
+        #update seepage velocity
         ws_prev[:] .= surf.ws[:]
 
         #Update induced velocities on airfoil

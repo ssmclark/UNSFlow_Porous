@@ -3,7 +3,7 @@ push!(LOAD_PATH,"C:\\Users\\user\\ENG_Project_4\\UNSFlow_Porous\\UnsteadyFlowSol
 
 using UnsteadyFlowSolvers, PlotlyJS, LaTeXStrings
 
-alphadef = ConstDef(1. *pi/180)
+alphadef = ConstDef(5. *pi/180)
 
 hdef = ConstDef(0.)
 
@@ -11,7 +11,7 @@ udef = ConstDef(1.)
 
 full_kinem = KinemDef(alphadef, hdef, udef)
 
-pvt = 0.2
+pvt = 0.
 
 geometry = "FlatPlate"
 
@@ -22,8 +22,6 @@ geometry = "FlatPlate"
 surf = TwoDSurfPorous(geometry, pvt, full_kinem, [100.0], rho = 0.02, rho_e = 1.2, phi = 100)
 surf2 = TwoDSurfPorous(geometry, pvt, full_kinem, [100.0], rho = 0.02, rho_e = 1.2, phi = 10)
 surf3 = TwoDSurfPorous(geometry, pvt, full_kinem, [100.0], rho = 0.02, rho_e = 1.2, phi = 5)
-#surf4 = TwoDSurfPorous(geometry, pvt, full_kinem, [100.0], rho = 0.02, rho_e = 1.2, phi = 10)
-#surf4 = TwoDSurfPorous(geometry, pvt, full_kinem, [100.0], rho = 0.02, rho_e = 1.2, phi = 5)
 
 curfield= TwoDFlowField()
 
