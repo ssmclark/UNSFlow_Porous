@@ -62,12 +62,10 @@ function update_downwash(surf::TwoDSurfPorous, vels::Vector{Float64})
 end
 
 # unsteady porous boundary condition (Baddoo et al. eq (2.2))
-# changes to pressure for normalising or non-dimensionalising will go in here
-# 1/(0.75*(surf.x[ib])) for flow resistance distribution. change to surf.phi for constant value throughout aerofoil
+# squared x for plunging airfoil
 function calc_porous_param(surf :: TwoDSurfPorous, vels :: Vector{Float64}, p_out, ws_prev, dt, m)
     for ib = 1:surf.ndiv
-        surf.ws[ib] = ((2*surf.rho_e*ws_prev[ib])/dt - p_out[ib])/(2*surf.rho_e/dt + 1/((m*surf.x[ib])))
-        #1/(10000*surf.x[ib])
+        surf.ws[ib] = ((2*surf.rho_e*ws_prev[ib])/dt - p_out[ib])/(2*surf.rho_e/dt + 1/((m*(surf.x[ib])^2)))
     end
     return surf
 end
